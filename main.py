@@ -1,50 +1,53 @@
-import os
-import numpy as np
-import librosa
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.pipeline import make_pipeline
-from collections import Counter
-from algorithms.hanoi import extract_features, crop_feature
+import uvicorn, jwt
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes import recognize
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+# ====== PERMISSION ======
+list_permission = {"POST|/recognize": ["guest"]}
 
 
-def load_features_and_labels(
-    features_file="hanoi_features.npy", labels_file="hanoi_labels.npy"
-):
-    models_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "models/"))
-    features_path = os.path.join(models_folder, features_file)
-    labels_path = os.path.join(models_folder, labels_file)
-    features = np.load(features_path)
-    labels = np.load(labels_path)
-    return features, labels
+@app.middleware("http")
+async def auth_middleware(request, call_next):
+    if request.url.path.startswith("/static"):
+        return await call_next(request)
+    role = "guest"
+    authorization = request.headers.get("Authorization")
+    if authorization:
+        try:
+            token = authorization.replace("Bearer ", "")
+            payload = jwt.decode(
+                token, "DQ;/_mU9<}La6%wJhF48:(Tg~#bK,BSy", algorithms=["HS256"]
+            )
+            request.state.user = payload
+            role = payload["role"]
+        except:
+            pass
+    has_permission = list_permission.get(f"{request.method}|{request.url.path}")
+    if isinstance(has_permission, list) and role in has_permission:
+        return await call_next(request)
+    return JSONResponse(status_code=403, content="Unauthorized")
 
 
-# Check and load data if it already exists
-features_array, labels_array = load_features_and_labels()
+# ====== ROUTES ======
+app.include_router(recognize.router)
 
-# Data preprocessing
-scaler = StandardScaler()
-pca = PCA(n_components=50)
-knn = KNeighborsClassifier(n_neighbors=5)
+# ====== CORS ======
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-pipeline = make_pipeline(scaler, pca, knn)
-pipeline.fit(features_array, labels_array)
+# ====== STATIC FILES ======
+app.mount("/static", StaticFiles(directory="public"), name="static")
 
-# Processing the recording file
-y, sr = librosa.load("output.wav", sr=44100)
-y = librosa.util.normalize(y)
-feat = extract_features(y, sr)
-
-results = []
-for i in range(0, feat.shape[0] - 10, 10):  # Adjust step size
-    crop_feat = crop_feature(feat, i, nb_step=10)
-    crop_feat = np.array(crop_feat).astype("float32").reshape(1, -1)
-    # Predict with KNN
-    pred = pipeline.predict(crop_feat)
-    results.append(pred[0])
-
-# Calculate the frequency of each song occurrence
-results = np.array(results)
-most_song = Counter(results)
-print(most_song.most_common())
+# ====== RUN ======
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

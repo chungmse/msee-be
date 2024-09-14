@@ -3,7 +3,8 @@ import pymongo, json
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient["msee"]
-mycol = mydb["songs"]
+songs = mydb["songs"]
+settings = mydb["settings"]
 
 # Init
 options = webdriver.ChromeOptions()
@@ -87,19 +88,30 @@ for cat in categories:
         count_all += 1
         count_cat += 1
         song["category"] = cat_name
-        song["status"] = 0
-        result = mycol.update_one(
-            {"encodeId": song["encodeId"]},
-            {
-                "$setOnInsert": song,
-            },
-            upsert=True,
-        )
-        if result.upserted_id is not None:
-            print(f"{count_all} | {count_cat} | {cat_name} | Inserted: {song['title']}")
-        else:
+
+        is_exist = songs.find_one({"encodeId": song["encodeId"]})
+
+        if is_exist:
+            songs.update_one(
+                {"encodeId": song["encodeId"]},
+                {
+                    "$set": song,
+                },
+            )
             print(
-                f"{count_all} | {count_cat} | {cat_name} | Duplicate: {song['title']}"
+                f"{count_all} | {count_cat} | {cat_name} | Updated: {song['title']} | Idn: {is_exist['idn']}"
+            )
+        else:
+            settings_idn = settings.find_one({"key": "songs_idn"})
+            song["idn"] = int(settings_idn["value"]) + 1
+            song["status"] = 0
+            settings.update_one(
+                {"key": "songs_idn"},
+                {"$set": {"value": str(song["idn"])}},
+            )
+            songs.insert_one(song)
+            print(
+                f"{count_all} | {count_cat} | {cat_name} | Inserted: {song['title']} | Idn: {song['idn']}"
             )
 
 driver.quit()
