@@ -1,4 +1,4 @@
-import uvicorn, jwt
+import os, uvicorn, jwt
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import recognize
@@ -6,6 +6,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+
+# ====== INIT ======
+if not os.path.exists("tmp"):
+    os.makedirs("tmp")
 
 # ====== PERMISSION ======
 list_permission = {
