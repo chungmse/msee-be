@@ -11,7 +11,7 @@ count = -1
 mongo_client = MongoClient("localhost", 27017)
 msee_db = mongo_client["msee"]
 songs = msee_db["songs"]
-features = msee_db["features"]
+hcm_features = msee_db["hcm_features"]
 
 
 def create_constellation_map(spectrogram, k_max=3, percentile_threshold=99):
@@ -50,7 +50,7 @@ def create_database_index(hashes, song_idn):
             "chunk_id": i // chunk_size,
             "hashes": [(h, int(t)) for h, t in chunk],
         }
-        features.insert_one(features)
+        hcm_features.insert_one(features)
 
 
 def process_song(song, index):

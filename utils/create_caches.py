@@ -5,7 +5,7 @@ from multiprocessing import Pool, cpu_count
 
 mongo_client = MongoClient("localhost", 27017)
 msee_db = mongo_client["msee"]
-features = msee_db["features"]
+hcm_features = msee_db["hcm_features"]
 
 redis_client = redis.Redis(host="localhost", port=6379, db=3)
 
@@ -19,7 +19,7 @@ def process_song(song_idn):
     local_redis = redis.Redis(host="localhost", port=6379, db=3)
     pipeline = local_redis.pipeline()
 
-    for feature in features.find({"song_idn": song_idn}):
+    for feature in hcm_features.find({"song_idn": song_idn}):
         for h, t in feature["hashes"]:
             pipeline.sadd(h, f"{song_idn}:{t}")
 
@@ -30,7 +30,7 @@ def process_song(song_idn):
 def create_caches():
     start_time = time.time()
 
-    song_idns = features.distinct("song_idn")
+    song_idns = hcm_features.distinct("song_idn")
     total_songs = len(song_idns)
 
     with Pool(processes=cpu_count()) as pool:

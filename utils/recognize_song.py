@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import redis
 import time
 from collections import defaultdict
-from algorithms.hanoi import create_constellation_map, create_hashes
+from algorithms.hcm import create_constellation_map, create_hashes
 
 mongo_client = MongoClient("localhost", 27017)
 msee_db = mongo_client["msee"]

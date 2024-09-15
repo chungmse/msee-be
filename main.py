@@ -8,7 +8,10 @@ from fastapi.responses import JSONResponse
 app = FastAPI()
 
 # ====== PERMISSION ======
-list_permission = {"POST|/recognize": ["guest"]}
+list_permission = {
+    "POST|/recognize/upload": ["guest"],
+    "POST|/recognize/result": ["guest"],
+}
 
 
 @app.middleware("http")
