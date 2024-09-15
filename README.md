@@ -114,4 +114,9 @@ cd /myprojects
 git clone https://github.com/chungmse/msee-be.git
 sudo chown -R chungnv:chungnv /myprojects/msee-be && sudo chmod -R 755 /myprojects/msee-be
 cd msee-be
+
+sudo apt install python3-pip -y
+sudo rm /usr/lib/python3.12/EXTERNALLY-MANAGED
+pip install pymongo
+
 ```
