@@ -1,9 +1,9 @@
-from selenium import webdriver
-import os, requests, json, pymongo
+import os, sys
 
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient["msee"]
-songs = mydb["songs"]
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from libs.mongo import songs
+from selenium import webdriver
+import requests, json
 
 count = 0
 

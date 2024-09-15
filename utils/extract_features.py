@@ -1,17 +1,14 @@
-import os
+import os, sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from libs.mongo import hcm_features, songs
 import librosa
 import numpy as np
-from pymongo import MongoClient
 import hashlib
 from scipy.signal import find_peaks
 import time
 
 count = -1
-
-mongo_client = MongoClient("localhost", 27017)
-msee_db = mongo_client["msee"]
-songs = msee_db["songs"]
-hcm_features = msee_db["hcm_features"]
 
 
 def create_constellation_map(spectrogram, k_max=3, percentile_threshold=99):
@@ -103,4 +100,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    mongo_client.close()
