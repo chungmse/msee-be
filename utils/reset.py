@@ -4,8 +4,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from libs.mongo import hcm_features, songs, jobs
 from libs.redis import redis_client
 
-hcm_features.create_index("song_idn")
-
 
 def reset_databases():
     # Reset MongoDB collection hcm_features
