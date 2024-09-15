@@ -71,7 +71,7 @@ async def result(request_data: ResultRequest = Body(...)):
             song_info["releaseDate"] = this_song["releaseDate"]
             song_info["thumbnailM"] = this_song["thumbnailM"]
             song_info["mp3url"] = (
-                "https://msee-api.mse19hn.com/public/music/"
+                "https://msee-api.mse19hn.com/static/music/"
                 + str(this_song["_id"])
                 + ".mp3"
             )
