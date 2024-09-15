@@ -2,9 +2,14 @@
 
 A project of © MSE19HN-G1
 
-## Setup on Ubuntu 24.04 LTS server (Username: chungnv | Password: Mse123456!)
+## Setup on Ubuntu 24.04 LTS server
 
 ### Init server
+
+```
+Username: chungnv
+Password: Mse123456!
+```
 
 ```
 adduser chungnv
