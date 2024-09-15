@@ -6,22 +6,20 @@ A project of © MSE19HN-G1
 
 ### Init server
 
+```
 adduser chungnv
 usermod -aG sudo chungnv
 ufw app list && ufw allow OpenSSH && ufw enable
 rsync --archive --chown=chungnv:chungnv ~/.ssh /home/chungnv
 sudo vi /etc/ssh/sshd_config
-
-```
-PermitRootLogin no
-PasswordAuthentication no
-ChallengeResponseAuthentication no
-```
-
+    PermitRootLogin no
+    PasswordAuthentication no
+    ChallengeResponseAuthentication no
 sudo service ssh restart
 sudo apt update -y && sudo apt upgrade -y
 sudo service apache2 stop && sudo apt remove apache2 apache2-utils -y && sudo apt purge apache2 -y && sudo apt autoremove -y
 sudo reboot
+```
 
 ### Python
 
@@ -29,6 +27,7 @@ Ready to use
 
 ### Nginx
 
+```
 sudo apt update -y && sudo apt install nginx -y
 sudo ufw allow 'Nginx HTTP' && sudo ufw allow 'Nginx HTTPS'
 sudo mkdir -p /myprojects/msee-be && sudo chown -R chungnv:chungnv /myprojects/msee-be && sudo chmod -R 755 /myprojects/msee-be
@@ -38,8 +37,6 @@ sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 sudo certbot certonly --nginx -d msee-api.mse19hn.com
 
 sudo nano /etc/nginx/sites-available/msee-api.mse19hn.com
-
-```
 server {
     listen 443 ssl http2;
     server_name msee-api.mse19hn.com;
@@ -65,13 +62,14 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 }
-```
 
 sudo ln -s /etc/nginx/sites-available/msee-api.mse19hn.com /etc/nginx/sites-enabled/
 sudo service nginx restart
+```
 
 ### MongoDB
 
+```
 sudo apt install gnupg curl
 curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
 echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
@@ -79,11 +77,14 @@ sudo apt update
 sudo apt install -y mongodb-org
 sudo systemctl start mongod
 sudo systemctl enable mongod
+```
 
 ### Redis
 
+```
 sudo apt install redis-server -y
 sudo systemctl enable redis-server.service
+```
 
 ### RabbitMQ
 
@@ -91,11 +92,19 @@ https://www.rabbitmq.com/docs/install-debian#apt-cloudsmith
 
 ### Nodejs
 
+```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 nvm install --lts
+```
 
 ### PM2
 
+```
 npm install -g pm2
+```
 
 ### msee-be
+
+```
+
+```
