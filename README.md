@@ -35,7 +35,6 @@ Ready to use
 ```
 sudo apt update -y && sudo apt install nginx -y
 sudo ufw allow 'Nginx HTTP' && sudo ufw allow 'Nginx HTTPS'
-sudo mkdir -p /myprojects/msee-be && sudo chown -R chungnv:chungnv /myprojects/msee-be && sudo chmod -R 755 /myprojects/msee-be
 
 sudo apt install certbot python3-certbot-nginx -y
 sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
@@ -111,5 +110,8 @@ npm install -g pm2
 ### msee-be
 
 ```
-
+cd /myprojects
+git clone https://github.com/chungmse/msee-be.git
+sudo chown -R chungnv:chungnv /myprojects/msee-be && sudo chmod -R 755 /myprojects/msee-be
+cd msee-be
 ```
