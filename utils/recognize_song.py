@@ -1,16 +1,13 @@
+import os, sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import librosa
 import numpy as np
-from pymongo import MongoClient
-import redis
 import time
 from collections import defaultdict
 from algorithms.hcm import create_constellation_map, create_hashes
-
-mongo_client = MongoClient("localhost", 27017)
-msee_db = mongo_client["msee"]
-songs = msee_db["songs"]
-
-redis_client = redis.Redis(host="localhost", port=6379, db=3)
+from libs.redis import redis_client
+from libs.mongo import songs
 
 
 def find_matches(sample_hashes):
@@ -71,6 +68,3 @@ def recognize_song(file_path):
 if __name__ == "__main__":
     sample_path = "utils/output.wav"
     recognize_song(sample_path)
-
-mongo_client.close()
-redis_client.close()

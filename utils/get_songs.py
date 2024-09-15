@@ -1,10 +1,9 @@
-from selenium import webdriver
-import pymongo, json
+import os, sys
 
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient["msee"]
-songs = mydb["songs"]
-settings = mydb["settings"]
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from libs.mongo import songs, settings
+from selenium import webdriver
+import json
 
 # Init
 options = webdriver.ChromeOptions()
