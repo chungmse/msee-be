@@ -117,6 +117,18 @@ cd msee-be
 
 sudo apt install python3-pip -y
 sudo rm /usr/lib/python3.12/EXTERNALLY-MANAGED
-pip install pymongo
+pip install pymongo redis librosa uvicorn fastapi pika python-multipart
 
+python3 utils/reset.py
+Import msee.settings.json
+Import msee.songs.json
+
+python3 utils/extract_features.py
+python3 utils/create_caches.py
+
+pm2 start main.py --name "msee-be-main"
+pm2 start workers/recognize_worker.py --name "msee-be-recognize_worker"
+
+pm2 save
+pm2 startup
 ```
