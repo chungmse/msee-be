@@ -4,7 +4,7 @@ import os
 import random
 import string
 from libs.mongo import jobs, songs
-from libs.rabbitmq import recognize_channel
+from libs.rabbitmq import RabbitMQ
 from bson import ObjectId
 
 router = APIRouter(prefix="/recognize", tags=["recognize"])
@@ -22,9 +22,10 @@ async def recognize(file: UploadFile = File(...)):
     jobs.update_one(
         {"_id": job_id}, {"$set": {"status": "waiting", "token": secret_token}}
     )
-    recognize_channel.basic_publish(
-        exchange="", routing_key="recognize", body=str(job_id)
-    )
+    rabbitmq = RabbitMQ()
+    rabbitmq.connect()
+    rabbitmq.publish({"job_id": str(job_id)})
+    rabbitmq.close()
     return {
         "job_id": str(job_id),
         "token": secret_token,

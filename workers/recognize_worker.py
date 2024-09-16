@@ -2,11 +2,12 @@ import os, sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import librosa
+import json
 import time
 import numpy as np
 from bson import ObjectId
 from libs.mongo import jobs
-from libs.rabbitmq import recognize_channel
+from libs.rabbitmq import RabbitMQ
 from algorithms.hcm import (
     create_constellation_map,
     create_hashes,
@@ -30,16 +31,20 @@ def recognize_song(file_path):
 
 
 def callback(ch, method, properties, body):
-    body = body.decode("utf-8")
+    rabbitmq.acknowledge(method.delivery_tag)
+    job_data = json.loads(body.decode("utf-8"))
     print("=========================================")
-    print(f"Received job_id: {body}")
-    this_job = jobs.find_one({"_id": ObjectId(body), "status": "waiting"})
+    print(f"Received: {body}")
+    if not isinstance(job_data, dict) or job_data["job_id"] is None:
+        print("Job ID is missing.")
+        return
+    this_job = jobs.find_one({"_id": ObjectId(job_data["job_id"]), "status": "waiting"})
     if this_job is None:
         print("Job not found or already processed.")
         return
     print("Processing job...")
-    jobs.update_one({"_id": ObjectId(body)}, {"$set": {"status": "processing"}})
-    top5, time = recognize_song(f"tmp/{body}.wav")
+    jobs.update_one({"_id": ObjectId(job_data["job_id"])}, {"$set": {"status": "processing"}})
+    top5, time = recognize_song(f"tmp/{job_data["job_id"]}.wav")
     list_result = []
     print("Top 5 matches:")
     for i, (song_idn, score) in top5:
@@ -47,7 +52,7 @@ def callback(ch, method, properties, body):
         print(f"{i}. song_idn: {song_idn}, score: {score}")
     print("Time:", time)
     jobs.update_one(
-        {"_id": ObjectId(body)},
+        {"_id": ObjectId(job_data["job_id"])},
         {
             "$set": {
                 "status": "completed",
@@ -56,14 +61,10 @@ def callback(ch, method, properties, body):
             }
         },
     )
-    os.remove(f"tmp/{body}.wav")
+    os.remove(f"tmp/{job_data["job_id"]}.wav")
     print("Job done!")
 
 
-recognize_channel.basic_consume(
-    queue="recognize", on_message_callback=callback, auto_ack=True
-)
-
-print("Waiting for jobs...")
-
-recognize_channel.start_consuming()
+rabbitmq = RabbitMQ()
+rabbitmq.connect()
+rabbitmq.consume(callback)
